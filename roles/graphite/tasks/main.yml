@@ -33,6 +33,21 @@
     - pyparsing==1.5.7
     - cairocffi
 
+- name: create graphite conf directory
+  file: path=/opt/graphite/conf state=directory
+
+- name: create graphite storage directory
+  file: path=/opt/graphite/storage state=directory
+
+- name: create graphite webapp directory
+  file: path=/opt/graphite/webapp state=directory
+
+- name: create graphite webapp graphite directory
+  file: path=/opt/graphite/webapp/graphite state=directory
+
+- name: create init file for graphite web app directory
+  shell: touch /opt/graphite/webapp/graphite/__init__.py; chmod 644 /opt/graphite/webapp/graphite/__init__.py
+
 - name: Configure carbon cache
   template: src=carbon.conf.j2 dest=/opt/graphite/conf/carbon.conf mode=0644
 
@@ -48,9 +63,8 @@
 - name: graphite wsgi
   template: src=graphite_wsgi.py.j2 dest=/opt/graphite/webapp/graphite/graphite_wsgi.py mode=0644
 
-
 - name: syncdb for graphite
-  shell: export PYTHONPATH=/opt/graphite/webapp/; /usr/bin/python /opt/graphite/webapp/graphite/manage.py syncdb --noinput --settings=graphite.settings
+  shell: export PYTHONPATH=/opt/graphite/webapp/; /usr/bin/python /usr/local/bin/django-admin.py migrate --settings=graphite.local_settings
 
 - name: graphite log folder
   file: state=directory path=/opt/graphite/storage/log/webapp
